@@ -13,13 +13,13 @@ services:
     - traefik_traefik
     deploy:
       replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
       placement:
         constraints:
         - node.role == manager
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        window: 60s
       labels:
       - "traefik.enable=true"
       - "traefik.port=9090"
@@ -43,13 +43,13 @@ services:
     - traefik_traefik
     deploy:
       replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
       placement:
         constraints:
         - node.role == manager
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        window: 60s
       labels:
       - "traefik.enable=true"
       - "traefik.port=3000"
