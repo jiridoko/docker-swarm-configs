@@ -26,6 +26,9 @@ services:
     environment:
       - USER_UID=1000
       - USER_GID=1000
+      - SSH_DOMAIN=git.santorini.dokoupil.cz
+      - SSH_PORT=222
+      - ROOT_URL=gitea.santorini.dokoupil.cz
       - DB_TYPE=mysql
       - DB_HOST=db:3306
       - DB_NAME=gitea
