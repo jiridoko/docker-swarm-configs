@@ -1,0 +1,122 @@
+---
+version: '3.7'
+networks:
+  elasticsearch:
+    external: false
+  traefik_traefik:
+    external: true
+
+services:
+  elastic0:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    ports:
+    - published: 9200
+      target: 9200
+      protocol: tcp
+      mode: ingress
+    networks:
+      - elasticsearch
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms1536m -Xmx1536m"
+      - "discovery.zen.ping.unicast.hosts=elastic1,elastic2"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /mnt/ssd/docker/data/elastic0:/usr/share/elasticsearch/data
+  elastic1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    ports:
+    - published: 9201
+      target: 9200
+      protocol: tcp
+      mode: ingress
+    networks:
+      - elasticsearch
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms1536m -Xmx1536m"
+      - "discovery.zen.ping.unicast.hosts=elastic0,elastic2"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /mnt/ssd/docker/data/elastic1:/usr/share/elasticsearch/data
+  elastic2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    ports:
+    - published: 9202
+      target: 9200
+      protocol: tcp
+      mode: ingress
+    networks:
+      - elasticsearch
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms1536m -Xmx1536m"
+      - "discovery.zen.ping.unicast.hosts=elastic0,elastic1"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /mnt/ssd/docker/data/elastic2:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.6.1
+    networks:
+      - elasticsearch
+      - traefik_traefik
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+      labels:
+      - "traefik.enable=true"
+      - "traefik.port=5601"
+      - "traefik.docker.network=traefik_traefik"
+      - "traefik.frontend.rule=Host: kibana.santorini.dokoupil.cz"
+    volumes:
+      - /mnt/ssd/docker/config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    environment:
+      - SERVER_NAME=kibana
+      - SERVER_REWRITEBASEPATH=false
+      - XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED=true
+      - ELASTICSEARCH_HOSTS=http://elastic0:9200
