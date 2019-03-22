@@ -1,0 +1,31 @@
+version: "3.7"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  server:
+    image: homeassistant/home-assistant
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+      labels:
+      - "traefik.enable=true"
+      - "traefik.port=8123"
+      - "traefik.docker.network=traefik_traefik"
+      - "traefik.frontend.rule=Host: home.santorini.dokoupil.cz"
+    networks:
+      - traefik_traefik
+    volumes:
+      - /mnt/ssd/docker/config/home-assistant:/config
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8300:8300"
+      - "51827:51827"

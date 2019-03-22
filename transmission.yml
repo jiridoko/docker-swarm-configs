@@ -1,0 +1,37 @@
+version: "3.7"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  server:
+    image: linuxserver/transmission
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+      labels:
+      - "traefik.enable=true"
+      - "traefik.port=9091"
+      - "traefik.docker.network=traefik_traefik"
+      - "traefik.frontend.rule=Host: transmission.santorini.dokoupil.cz"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - TRANSMISSION_WEB_HOME=/combustion-release/
+    networks:
+      - traefik_traefik
+    volumes:
+      - /mnt/ssd/docker/data/transmission_downloads/downloads:/downloads
+      - /mnt/ssd/docker/data/transmission_downloads/torrent:/watch
+      - /mnt/ssd/docker/config/transmission:/config
+    ports:
+      - "51413:51413"
+      - "51413:51413/udp"
