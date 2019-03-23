@@ -22,10 +22,10 @@ services:
       - "traefik.docker.network=traefik_traefik"
       - "traefik.frontend.rule=Host: transmission.santorini.dokoupil.cz"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=9000
+      - PGID=9000
       - TZ=Europe/London
-      - TRANSMISSION_WEB_HOME=/combustion-release/
+        #      - TRANSMISSION_WEB_HOME=/combustion-release/
     networks:
       - traefik_traefik
     volumes:
