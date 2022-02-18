@@ -1,0 +1,23 @@
+version: "3.9"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  sonoff:
+    image: ewelink_smart_home
+    environment:
+      HA_URL: "https://home.sellerdale.com"
+    networks:
+    - default
+    - traefik_traefik
+    deploy:
+      labels:
+      - "traefik.http.routers.sonoff.rule=Host(`sonoff.sellerdale.com`)"
+      - "traefik.http.routers.sonoff.entrypoints=https"
+      - "traefik.http.routers.sonoff.tls=true"
+      - "traefik.http.routers.sonoff.tls.certresolver=resolver"
+      - "traefik.http.services.sonoff.loadbalancer.server.port=3000"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"

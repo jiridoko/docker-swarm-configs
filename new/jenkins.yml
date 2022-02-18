@@ -1,0 +1,23 @@
+version: "3.9"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  jenkins:
+    image: jenkins/jenkins:2.335-jdk11
+    networks:
+    - default
+    - traefik_traefik
+    volumes:
+    - /mnt/docker/jenkins:/var/jenkins_home
+    deploy:
+      labels:
+      - "traefik.http.routers.jenkins.rule=Host(`jenkins.sellerdale.com`)"
+      - "traefik.http.routers.jenkins.entrypoints=https"
+      - "traefik.http.routers.jenkins.tls=true"
+      - "traefik.http.routers.jenkins.tls.certresolver=resolver"
+      - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
