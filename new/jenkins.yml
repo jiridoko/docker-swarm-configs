@@ -6,7 +6,7 @@ networks:
 
 services:
   jenkins:
-    image: jenkins/jenkins:2.335-jdk11
+    image: jenkins/jenkins:2.337-jdk11
     networks:
     - default
     - traefik_traefik

@@ -1,0 +1,21 @@
+version: "3.9"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  esphome:
+    image: esphome/esphome:2022.3.0
+    networks:
+    - default
+    - traefik_traefik
+    deploy:
+      labels:
+      - "traefik.http.routers.esphome.rule=Host(`esphome.sellerdale.com`)"
+      - "traefik.http.routers.esphome.entrypoints=https"
+      - "traefik.http.routers.esphome.tls=true"
+      - "traefik.http.routers.esphome.tls.certresolver=resolver"
+      - "traefik.http.services.esphome.loadbalancer.server.port=80"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
