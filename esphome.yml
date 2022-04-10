@@ -1,0 +1,16 @@
+version: "3.9"
+
+networks:
+  traefik_traefik:
+    external: true
+  hostnet:
+    external: true
+    name: "host"
+
+services:
+  esphome:
+    image: esphome/esphome:2022.3.2
+    networks:
+      hostnet: {}
+    volumes:
+    - /mnt/docker/esphome:/config
