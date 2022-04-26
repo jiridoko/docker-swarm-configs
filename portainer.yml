@@ -7,7 +7,7 @@ networks:
 
 services:
   portainer:
-    image: portainer/portainer-ce:2.11.0-alpine
+    image: portainer/portainer-ce:2.11.1-alpine
     networks:
     - default
     - traefik_traefik
