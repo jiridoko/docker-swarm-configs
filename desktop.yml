@@ -1,0 +1,27 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  desktop:
+    image: linuxserver/webtop:arch-xfce
+    #image: jiri-arch-xfce:1.0.0
+    networks:
+    - default
+    - traefik_traefik
+    volumes:
+    - /dev/shm:/dev/shm
+    - /mnt/docker/desktop/config:/config
+    ports:
+    - "3000:3000"
+    deploy:
+      labels:
+      - "traefik.http.routers.desktop.rule=Host(`desktop.sellerdale.com`)"
+      - "traefik.http.routers.desktop.entrypoints=https"
+      - "traefik.http.routers.desktop.tls=true"
+      - "traefik.http.routers.desktop.tls.certresolver=resolver"
+      - "traefik.http.services.desktop.loadbalancer.server.port=3000"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"

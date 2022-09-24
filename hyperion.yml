@@ -1,0 +1,21 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  hyperion:
+    image: truecharts/hyperion.ng:2.0.13
+    networks:
+    - default
+    - traefik_traefik
+    deploy:
+      labels:
+      - "traefik.http.routers.hyperion.rule=Host(`hyperion.sellerdale.com`)"
+      - "traefik.http.routers.hyperion.entrypoints=https"
+      - "traefik.http.routers.hyperion.tls=true"
+      - "traefik.http.routers.hyperion.tls.certresolver=resolver"
+      - "traefik.http.services.hyperion.loadbalancer.server.port=8090"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
