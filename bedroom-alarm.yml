@@ -1,0 +1,26 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  bedroom-alarm:
+    networks:
+    - default
+    - traefik_traefik
+    image: bedroom_alarm:1.0.1
+    #container_name: bedroom-alarm
+    volumes:
+    - /mnt/docker/bedroom-alarm:/app/config
+    ports:
+    - 5001:5001
+    deploy:
+      labels:
+      - "traefik.http.routers.bedroom-alarm.rule=Host(`bedroom-alarm.sellerdale.com`)"
+      - "traefik.http.routers.bedroom-alarm.entrypoints=https"
+      - "traefik.http.routers.bedroom-alarm.tls=true"
+      - "traefik.http.routers.bedroom-alarm.tls.certresolver=resolver"
+      - "traefik.http.services.bedroom-alarm.loadbalancer.server.port=5001"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"

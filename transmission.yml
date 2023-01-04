@@ -1,0 +1,40 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  transmission:
+    networks:
+    - default
+    - traefik_traefik
+    image: lscr.io/linuxserver/transmission:latest
+    #container_name: transmission
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=Europe/London
+        #- TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+        #- USER=username #optional
+        #- PASS=password #optional
+        #- WHITELIST=iplist #optional
+        #- PEERPORT=peerport #optional
+        #- HOST_WHITELIST=dnsname list #optional
+    volumes:
+    - /mnt/docker/transmission:/config
+    - /mnt/general/torrent:/downloads
+    - /mnt/general/torrentfiles:/watch
+    ports:
+    - 9091:9091
+    - 51413:51413
+    - 51413:51413/udp
+    deploy:
+      labels:
+      - "traefik.http.routers.transmission.rule=Host(`transmission.sellerdale.com`)"
+      - "traefik.http.routers.transmission.entrypoints=https"
+      - "traefik.http.routers.transmission.tls=true"
+      - "traefik.http.routers.transmission.tls.certresolver=resolver"
+      - "traefik.http.services.transmission.loadbalancer.server.port=9091"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
