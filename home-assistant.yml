@@ -6,7 +6,7 @@ networks:
 
 services:
   server:
-    image: homeassistant/home-assistant:2022.2
+    image: homeassistant/home-assistant:2023.1
     deploy:
       replicas: 1
       restart_policy:
@@ -17,17 +17,17 @@ services:
         constraints:
         - node.role == manager
       labels:
-      - "traefik.http.routers.home_automation.rule=Host(`home.sellerdale.com`)"
-      - "traefik.http.routers.home_automation.entrypoints=https"
-      - "traefik.http.routers.home_automation.tls=true"
-      - "traefik.http.routers.home_automation.tls.certresolver=resolver"
-      - "traefik.http.services.home_automation.loadbalancer.server.port=8123"
+      - "traefik.http.routers.home-assistant.rule=Host(`home.sellerdale.com`)"
+      - "traefik.http.routers.home-assistant.entrypoints=https"
+      - "traefik.http.routers.home-assistant.tls=true"
+      - "traefik.http.routers.home-assistant.tls.certresolver=resolver"
+      - "traefik.http.services.home-assistant.loadbalancer.server.port=8123"
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_traefik"
     networks:
       - traefik_traefik
     volumes:
-      - /mnt/docker/home-assistant/config:/config
+      - /mnt/docker/home-assistant:/config
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "8300:8300"

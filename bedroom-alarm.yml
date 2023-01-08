@@ -9,7 +9,7 @@ services:
     networks:
     - default
     - traefik_traefik
-    image: bedroom_alarm:1.0.1
+    image: bedroom_alarm:1.0.2
     #container_name: bedroom-alarm
     volumes:
     - /mnt/docker/bedroom-alarm:/app/config

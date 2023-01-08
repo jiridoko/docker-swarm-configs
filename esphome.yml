@@ -9,7 +9,7 @@ networks:
 
 services:
   esphome:
-    image: esphome/esphome:latest
+    image: esphome/esphome:2022.12
     networks:
       hostnet: {}
     volumes:
