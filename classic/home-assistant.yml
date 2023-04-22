@@ -6,7 +6,7 @@ networks:
 
 services:
   server:
-    image: homeassistant/home-assistant:2023.1
+    image: homeassistant/home-assistant:2023.3
     deploy:
       replicas: 1
       restart_policy:
