@@ -1,0 +1,29 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  postgres:
+    networks:
+    - default
+    - traefik_traefik
+    image: postgres:latest
+    environment:
+    - POSTGRES_PASSWORD=WykJevlarwywath6
+    - POSTGRES_USER=postgres-user
+    - POSTGRES_DB=production-db
+    volumes:
+    - /mnt/docker/postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    #deploy:
+    #  labels:
+    #  - "traefik.http.routers.postgres.rule=Host(`postgres.sellerdale.com`)"
+    #  - "traefik.http.routers.postgres.entrypoints=https"
+    #  - "traefik.http.routers.postgres.tls=true"
+    #  - "traefik.http.routers.postgres.tls.certresolver=resolver"
+    #  - "traefik.http.services.postgres.loadbalancer.server.port=9002"
+    #  - "traefik.enable=true"
+    #  - "traefik.docker.network=traefik_traefik"

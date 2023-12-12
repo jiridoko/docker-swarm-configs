@@ -1,0 +1,27 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  minio:
+    networks:
+    - default
+    - traefik_traefik
+    image: minio/minio:latest
+    command: server /data --console-address ":9002"
+    volumes:
+    - /mnt/docker/minio:/data
+    ports:
+    - 9000:9000
+    - 9002:9002
+    deploy:
+      labels:
+      - "traefik.http.routers.minio.rule=Host(`minio.sellerdale.com`)"
+      - "traefik.http.routers.minio.entrypoints=https"
+      - "traefik.http.routers.minio.tls=true"
+      - "traefik.http.routers.minio.tls.certresolver=resolver"
+      - "traefik.http.services.minio.loadbalancer.server.port=9002"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"

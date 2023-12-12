@@ -10,6 +10,7 @@ networks:
 services:
   esphome:
     image: esphome/esphome:stable
+      #image: esphome/esphome:2023.2.4
     networks:
       hostnet: {}
     volumes:
