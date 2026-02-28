@@ -1,0 +1,28 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  ebusd:
+    image: john30/ebusd:latest
+    networks:
+    - default
+    - traefik_traefik
+    environment:
+    - EBUSD_SCANCONFIG=full
+    - EBUSD_DEVICE=10.85.0.32:9999
+    - EBUSD_MQTTPORT=1883
+    - EBUSD_MQTTHOST=mqtt://mqtt:ruOtBilvOucWait0@mqtt.sellerdale.com
+    ports:
+    - 8888:8888
+    deploy:
+      labels:
+      - "traefik.http.routers.ebusd.rule=Host(`ebusd.sellerdale.com`)"
+      - "traefik.http.routers.ebusd.entrypoints=https"
+      - "traefik.http.routers.ebusd.tls=true"
+      - "traefik.http.routers.ebusd.tls.certresolver=resolver"
+      - "traefik.http.services.ebusd.loadbalancer.server.port=8888"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"

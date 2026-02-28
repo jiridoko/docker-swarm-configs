@@ -9,11 +9,11 @@ services:
     networks:
     - default
     - traefik_traefik
-    image: lscr.io/linuxserver/transmission:latest
+    image: linuxserver/transmission:4.0.6
     #container_name: transmission
     environment:
-    - PUID=1000
-    - PGID=1000
+    - PUID=9000
+    - PGID=9000
     - TZ=Europe/London
         #- TRANSMISSION_WEB_HOME=/combustion-release/ #optional
         #- USER=username #optional

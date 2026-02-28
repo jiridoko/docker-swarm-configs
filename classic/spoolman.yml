@@ -1,0 +1,25 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  spoolman:
+    image: ghcr.io/donkie/spoolman:latest
+    networks:
+    - default
+    - traefik_traefik
+    volumes:
+    - /mnt/docker/spoolman:/home/app/.local/share/spoolman
+    ports:
+    - 8000:8000
+    deploy:
+      labels:
+      - "traefik.http.routers.spoolman.rule=Host(`spoolman.sellerdale.com`)"
+      - "traefik.http.routers.spoolman.entrypoints=https"
+      - "traefik.http.routers.spoolman.tls=true"
+      - "traefik.http.routers.spoolman.tls.certresolver=resolver"
+      - "traefik.http.services.spoolman.loadbalancer.server.port=8000"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
