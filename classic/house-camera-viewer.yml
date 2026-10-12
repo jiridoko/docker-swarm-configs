@@ -1,0 +1,47 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  house-camera-viewer:
+    image: house-camera-viewer:latest
+    #image: house-camera-viewer-house-camera-viewer:latest
+    networks:
+      - default
+      - traefik_traefik
+    environment:
+      - TZ=UTC
+      - STREAM_DIR=/dev/shm/house-camera-viewer-hls
+    volumes:
+      - /mnt/docker/house-camera-viewer/config.yaml:/app/config/config.yaml:ro
+      - /dev/shm:/dev/shm
+      # Alternatively, mount directly from Dev directory:
+      # - /home/jiri/Dev/house-camera-viewer/config.yaml:/app/config/config.yaml:ro
+    ports:
+      - "9067:8080"
+    deploy:
+      labels:
+        - "traefik.http.routers.house-camera-viewer.rule=Host(`house-camera-viewer.sellerdale.com`)"
+        - "traefik.http.routers.house-camera-viewer.entrypoints=https"
+        - "traefik.http.routers.house-camera-viewer.tls=true"
+        - "traefik.http.routers.house-camera-viewer.tls.certresolver=resolver"
+        - "traefik.http.services.house-camera-viewer.loadbalancer.server.port=8080"
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_traefik"
+
+  nodelink:
+    image: ghcr.io/apocaliss92/nodelink-js-manager:latest
+    networks:
+      - default
+    volumes:
+      - /mnt/docker/house-camera-viewer/nodelink-data:/data
+      # Alternatively, mount directly from Dev directory:
+      # - /home/jiri/Dev/house-camera-viewer/nodelink-data:/data
+    ports:
+      - "8554:8554"
+      - "3000:3000"
+    deploy:
+      labels:
+        - "traefik.enable=false"

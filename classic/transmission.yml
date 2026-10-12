@@ -23,8 +23,8 @@ services:
         #- HOST_WHITELIST=dnsname list #optional
     volumes:
     - /mnt/docker/transmission:/config
-    - /mnt/general/torrent:/downloads
-    - /mnt/general/torrentfiles:/watch
+    - /mnt/torrent:/downloads
+    - /mnt/torrent/watch:/watch
     ports:
     - 9091:9091
     - 51413:51413
