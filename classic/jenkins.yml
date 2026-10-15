@@ -6,13 +6,17 @@ networks:
 
 services:
   jenkins:
-    image: jenkins/jenkins:2.344
+    image: jenkins/jenkins:latest
     networks:
     - default
     - traefik_traefik
     volumes:
     - /mnt/docker/jenkins:/var/jenkins_home
     deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        window: 60s
       labels:
       - "traefik.http.routers.jenkins.rule=Host(`jenkins.sellerdale.com`)"
       - "traefik.http.routers.jenkins.entrypoints=https"
