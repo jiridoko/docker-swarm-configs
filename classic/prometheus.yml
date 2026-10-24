@@ -42,7 +42,7 @@ services:
       - /mnt/docker/prometheus/data:/prometheus
 
   alertmanager:
-    image: prom/alertmanager:v0.28.0
+    image: prom/alertmanager:v0.34.1
     networks:
     - default
     - traefik_traefik
@@ -72,8 +72,7 @@ services:
       - /mnt/docker/alertmanager/data:/alertmanager
 
   grafana:
-    #image: grafana/grafana:8.5.0
-    image: grafana/grafana:12.3
+    image: grafana/grafana:13.2.4
     networks:
     - default
     - traefik_traefik
@@ -98,26 +97,29 @@ services:
       - /mnt/docker/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
       - /mnt/docker/grafana/data:/var/lib/grafana
 
-#  grafana-image-renderer:
-#    image: grafana/grafana-image-renderer:3.4.2
-#    networks:
-#    - default
-#    - traefik_traefik
-#    deploy:
-#      replicas: 1
-#      restart_policy:
-#        condition: any
-#        delay: 5s
-#        window: 60s
-#      placement:
-#        constraints:
-#        - node.role == manager
-#      labels:
-#      - "traefik.http.routers.grafana-image-renderer.rule=Host(`grafana-image-renderer.sellerdale.com`)"
-#      - "traefik.http.routers.grafana-image-renderer.entrypoints=https"
-#      - "traefik.http.routers.grafana-image-renderer.tls=true"
-#      - "traefik.http.routers.grafana-image-renderer.tls.certresolver=resolver"
-#      - "traefik.http.services.grafana-image-renderer.loadbalancer.server.port=8081"
-#      - "traefik.enable=true"
-#      - "traefik.docker.network=traefik_traefik"
+  grafana-image-renderer:
+    image: grafana/grafana-image-renderer:latest
+    environment:
+      - AUTH_TOKEN=24484d304d8d9912fa1e50c90b83229b4fbd2db21caf749b
+      - TZ=Europe/London
+    networks:
+    - default
+    - traefik_traefik
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+      labels:
+      - "traefik.http.routers.grafana-image-renderer.rule=Host(`grafana-image-renderer.sellerdale.com`)"
+      - "traefik.http.routers.grafana-image-renderer.entrypoints=https"
+      - "traefik.http.routers.grafana-image-renderer.tls=true"
+      - "traefik.http.routers.grafana-image-renderer.tls.certresolver=resolver"
+      - "traefik.http.services.grafana-image-renderer.loadbalancer.server.port=8081"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
 
