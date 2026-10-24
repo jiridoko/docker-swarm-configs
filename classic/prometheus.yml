@@ -38,7 +38,38 @@ services:
       - "--web.console.templates=/usr/share/prometheus/consoles"
     volumes:
       - /mnt/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /mnt/docker/prometheus/rules:/etc/prometheus/rules:ro
       - /mnt/docker/prometheus/data:/prometheus
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    networks:
+    - default
+    - traefik_traefik
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 60s
+      placement:
+        constraints:
+        - node.role == manager
+      labels:
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.sellerdale.com`)"
+      - "traefik.http.routers.alertmanager.entrypoints=https"
+      - "traefik.http.routers.alertmanager.tls=true"
+      - "traefik.http.routers.alertmanager.tls.certresolver=resolver"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.external-url=https://alertmanager.sellerdale.com"
+    volumes:
+      - /mnt/docker/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - /mnt/docker/alertmanager/data:/alertmanager
 
   grafana:
     #image: grafana/grafana:8.5.0
