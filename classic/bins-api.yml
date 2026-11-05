@@ -1,0 +1,27 @@
+version: "3.8"
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  bins-api:
+    image: robbrad182/uk-bin-collection:latest
+    networks:
+      - default
+      - traefik_traefik
+    environment:
+      - TZ=Europe/London
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        window: 60s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_traefik"
+        - "traefik.http.routers.bins-api.rule=Host(`bins-api.sellerdale.com`)"
+        - "traefik.http.routers.bins-api.entrypoints=https"
+        - "traefik.http.routers.bins-api.tls=true"
+        - "traefik.http.routers.bins-api.tls.certresolver=resolver"
+        - "traefik.http.services.bins-api.loadbalancer.server.port=8080"
