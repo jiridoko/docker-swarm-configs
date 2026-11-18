@@ -1,0 +1,57 @@
+version: "3.8"
+
+# Secrets (ENCRYPTION_KEY, AUTH_SECRET, DB credentials) live in
+# /home/jiri/infisical-secrets/*.env on lisa (mode 0600, not in git).
+# Data in /mnt/docker/infisical is intentionally NOT backed up.
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  backend:
+    image: infisical/infisical:v0.167.12
+    env_file:
+    - /home/jiri/infisical-secrets/infisical.env
+    environment:
+    - NODE_ENV=production
+    - TZ=Europe/London
+    networks:
+    - default
+    - traefik_traefik
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 10s
+      labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_traefik"
+      - "traefik.http.routers.infisical.rule=Host(`infisical.sellerdale.com`)"
+      - "traefik.http.routers.infisical.entrypoints=https"
+      - "traefik.http.routers.infisical.tls=true"
+      - "traefik.http.routers.infisical.tls.certresolver=resolver"
+      - "traefik.http.services.infisical.loadbalancer.server.port=8080"
+
+  db:
+    image: postgres:16-alpine
+    env_file:
+    - /home/jiri/infisical-secrets/postgres.env
+    volumes:
+    - /mnt/docker/infisical/postgres:/var/lib/postgresql/data
+    networks:
+    - default
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        window: 60s
+
+  redis:
+    image: redis:7-alpine
+    networks:
+    - default
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        window: 60s
