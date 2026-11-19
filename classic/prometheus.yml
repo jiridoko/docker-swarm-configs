@@ -6,11 +6,17 @@ networks:
     external: true
 
 secrets:
-  # Created by prometheus.sh from Infisical /email/GMAIL_APP_PASSWORD; the name is versioned
-  # by a hash of the value, so a rotated password becomes a new secret.
-  gmail_app_password:
+  # All created by prometheus.sh. Infisical-backed ones are versioned by a hash of the value,
+  # so a rotated value becomes a new secret; just re-run ./prometheus.sh after rotating.
+  gmail_app_password:            # Infisical /email/GMAIL_APP_PASSWORD
     external: true
     name: ${ALERTMANAGER_GMAIL_SECRET:?run ./prometheus.sh}
+  ha_scrape_token:               # Infisical /home-assistant/PROMETHEUS_HA_SCRAPE_TOKEN
+    external: true
+    name: ${PROMETHEUS_HA_SCRAPE_SECRET:?run ./prometheus.sh}
+  grafana_renderer_token:        # random, generated once, shared by grafana + renderer only
+    external: true
+    name: grafana_renderer_token
 
 services:
   prometheus:
@@ -44,6 +50,8 @@ services:
       - "--web.external-url=https://prometheus.sellerdale.com"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
+    secrets:
+      - ha_scrape_token
     volumes:
       - /mnt/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /mnt/docker/prometheus/rules:/etc/prometheus/rules:ro
@@ -105,15 +113,22 @@ services:
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_traefik"
+    environment:
+      - GF_RENDERING_RENDERER_TOKEN__FILE=/run/secrets/grafana_renderer_token
+    secrets:
+      - grafana_renderer_token
     volumes:
       - /mnt/docker/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
       - /mnt/docker/grafana/data:/var/lib/grafana
 
   grafana-image-renderer:
     image: grafana/grafana-image-renderer:latest
+    # the renderer has no *_FILE option, so read the token from the swarm secret at start
+    entrypoint: ["tini", "--", "/bin/sh", "-c", "AUTH_TOKEN=\"$$(cat /run/secrets/grafana_renderer_token)\" exec /usr/bin/grafana-image-renderer server"]
     environment:
-      - AUTH_TOKEN=24484d304d8d9912fa1e50c90b83229b4fbd2db21caf749b
       - TZ=Europe/London
+    secrets:
+      - grafana_renderer_token
     networks:
     - default
     - traefik_traefik
