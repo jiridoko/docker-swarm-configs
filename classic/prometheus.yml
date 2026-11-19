@@ -5,6 +5,13 @@ networks:
   traefik_traefik:
     external: true
 
+secrets:
+  # Created by prometheus.sh from Infisical /email/GMAIL_APP_PASSWORD; the name is versioned
+  # by a hash of the value, so a rotated password becomes a new secret.
+  gmail_app_password:
+    external: true
+    name: ${ALERTMANAGER_GMAIL_SECRET:?run ./prometheus.sh}
+
 services:
   prometheus:
     #image: prom/prometheus:v2.35.0
@@ -68,6 +75,10 @@ services:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
       - "--web.external-url=https://alertmanager.sellerdale.com"
+      # must exceed the longest repeat_interval (168h for domain expiry alerts)
+      - "--data.retention=200h"
+    secrets:
+      - gmail_app_password
     volumes:
       - /mnt/docker/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - /mnt/docker/alertmanager/data:/alertmanager
