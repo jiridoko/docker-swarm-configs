@@ -18,9 +18,14 @@ services:
       - --mqttjson
       - --mqttint=/etc/ebusd/mqtt-hassio.cfg
       - --mqttvar=filter-name=status|temp|humidity|yield|count|energy|power|runtime|hours|starts|mode|curve|load|party|sensor|timer|error|flame|pressure|fan|modulation|state
+      # Messages this boiler (BAI00 ecoFit pure 418) answers with "ERR: invalid position" - keep them out of the poll rotation
+      - --mqttvar=filter-non-name=^ExternalFlowTempDesired$$|^ExtFlowTempDesiredMin$$|^FanSpeedOffsetMax$$|^FanSpeedOffsetMin$$|^HcPumpMode$$|^HoursTillService$$|^HwcPostrunTime$$|^HwcTempDesired$$|^HwcTempMax$$|^PartloadHcKW$$|^PartloadHwcKW$$|^SecondPumpMode$$|^Status$$|^Status16$$|^StorageLoadTimeMax$$|^TargetFanSpeedOutput$$|^ValveMode$$|^VortexFlowSensor$$|^WPPostrunTime$$
+      # Retain data topics so Home Assistant has values immediately after a restart
+      - --mqttretain
       - --httpport=8889
       - --accesslevel=*
-      - --pollinterval=5
+      # Live values (FlowTemp, ReturnTemp, FanSpeed, ...) get poll priority 1 from HA automation "ebusd_live_poll_priority"
+      - --pollinterval=1
     networks:
       - default
       - traefik_traefik
